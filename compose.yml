@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  db:
-    container_name: nlp-db
+  vector-db:
+    container_name: nlp-vector-db
     image: pgvector/pgvector:pg18-trixie 
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -11,5 +11,18 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./db/data:/var/lib/postgresql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/vector/docker:/var/lib/postgresql
+      - ./db/vector/init.sql:/docker-entrypoint-initdb.d/init.sql
+  graph-db:
+    container_name: nlp-graph-db
+    image: neo4j:trixie
+    volumes:
+        - ./db/kg/docker/logs:/logs
+        - ./db/kg/docker/config:/config
+        - ./db/kg/docker/data:/data
+        - ./db/kg/docker/plugins:/plugins
+    environment:
+        NEO4J_AUTH: ${NEO4J_PASSWORD}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
