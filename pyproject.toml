@@ -7,7 +7,9 @@ authors = [
     { name = "viki123v", email = "viktorhristovski629@gmail.com" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "psycopg2-binary>=2.9.11",
+]
 
 [project.scripts]
 main = "llm_knowledge_enhancement:main"
