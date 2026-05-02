@@ -22,7 +22,7 @@ services:
         - ./db/kg/docker/data:/data
         - ./db/kg/docker/plugins:/plugins
     environment:
-        NEO4J_AUTH: ${NEO4J_PASSWORD}
+        NEO4J_AUTH: ${NEO4J_AUTH}
     ports:
       - "7474:7474"
       - "7687:7687"
