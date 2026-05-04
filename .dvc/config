@@ -1,0 +1,7 @@
+[core]
+    remote = origin
+    autostage = true
+['remote "origin"']
+    url = s3://llm-knowledge-enhancement
+    endpointurl = https://dagshub.com/api/v1/repo-buckets/s3/viki123v
+    region = us-east-1

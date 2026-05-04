@@ -1,0 +1,30 @@
+[project]
+name = "llm-knowledge-enhancement"
+version = "0.1.0"
+description = "Recommendation system for course NLP at FINKI"
+readme = "README.md"
+authors = [
+    { name = "viki123v", email = "viktorhristovski629@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "psycopg2-binary>=2.9.11",
+]
+
+[project.scripts]
+main = "llm_knowledge_enhancement:main"
+
+[build-system]
+requires = ["uv_build>=0.9.15,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "dvc>=3.67.1",
+    "dvc-s3>=3.3.0",
+    "prek>=0.3.9",
+    "ruff>=0.15.11",
+]
+
+[tool.ruff.lint]
+extend-select = ["I"]
