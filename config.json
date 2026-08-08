@@ -1,0 +1,32 @@
+{
+  "run_id": "run_007",
+  "preprocessing": {
+    "seed": 42,
+    "split_version": "v1",
+    "description_assembly_version": "v1",
+    "truncation_cap": 2048,
+    "embedding": {
+      "model_id": "default",
+      "revision": null,
+      "d": null
+    }
+  },
+  "system": {
+    "k": 10,
+    "seed": 42,
+    "retriever": {
+      "top_n": 200
+    },
+    "profile": {
+      "recency_decay": null
+    },
+    "ranker": {
+      "profile_weight": 0.5,
+      "max_history_weight": 0.5
+    }
+  },
+  "evaluation": {
+    "k": 10,
+    "on_missing": "raise"
+  }
+}

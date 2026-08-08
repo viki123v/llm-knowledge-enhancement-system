@@ -13,12 +13,14 @@ dependencies = [
     "ijson>=3.5.1",
     "jupysql>=0.11.1",
     "matplotlib>=3.11.1",
+    "numpy>=2.5.1",
     "pandas>=3.0.5",
     "psycopg2-binary>=2.9.11",
 ]
 
 [project.scripts]
 main = "llm_knowledge_enhancement:main"
+ingest-simple = "ingest.simple.__main__:main"
 
 [build-system]
 requires = ["uv_build>=0.9.15,<0.10.0"]
@@ -29,8 +31,16 @@ dev = [
     "dvc>=3.67.1",
     "dvc-s3>=3.3.0",
     "prek>=0.3.9",
+    "pytest>=8.4.2",
     "ruff>=0.15.11",
 ]
+
+[tool.uv.build-backend]
+module-name = ["llm_knowledge_enhancement", "ingest", "path"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
 
 [tool.ruff.lint]
 extend-select = ["I"]
