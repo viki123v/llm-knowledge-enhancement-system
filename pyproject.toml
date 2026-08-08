@@ -8,6 +8,12 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "duckdb>=1.5.5",
+    "duckdb-engine>=0.17.0",
+    "ijson>=3.5.1",
+    "jupysql>=0.11.1",
+    "matplotlib>=3.11.1",
+    "pandas>=3.0.5",
     "psycopg2-binary>=2.9.11",
 ]
 
