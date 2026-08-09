@@ -1,0 +1,4 @@
+# Keep 1 / item_split_factor of items (e.g. 2 => half, 4 => quarter).
+item_split_factor: 4
+# Hugging Face / SentenceTransformers model id used for item embeddings.
+embedding_model: BAAI/bge-m3

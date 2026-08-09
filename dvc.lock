@@ -1,0 +1,37 @@
+schema: '2.0'
+stages:
+  ingest_simple:
+    cmd: uv run ingest-simple
+    deps:
+    - path: data/amazon_musical_instruments/Musical_Instruments.jsonl
+      hash: md5
+      md5: 513f9d0831e7ca7ee39219fdd5a26f9d
+      size: 1557845107
+    - path: data/amazon_musical_instruments/meta_Musical_Instruments.jsonl
+      hash: md5
+      md5: 44492f6328e4274b4392541df8f06732
+      size: 630450568
+    - path: src/ingest/raw_data_schema.py
+      hash: md5
+      md5: 25cd2d7d352e93873a3f7219bdbe4b95
+      size: 2169
+    - path: src/ingest/simple/__main__.py
+      hash: md5
+      md5: 464b64a3e045b5a31abc227f82777760
+      size: 3668
+    params:
+      params.yaml:
+        item_split_factor: 2
+    outs:
+    - path: data/processed/item_description.json
+      hash: md5
+      md5: 396ac597de908c695c13e4adb1b9a5de
+      size: 54538178
+    - path: data/processed/user_item.json
+      hash: md5
+      md5: f6dc6959904055a040c3ebb1842e1264
+      size: 7931736
+    - path: data/processed/user_purchase_history.json
+      hash: md5
+      md5: e1b4a6e091c633be3f5b1acfb04f4e6e
+      size: 20603520

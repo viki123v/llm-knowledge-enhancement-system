@@ -1,3 +1,6 @@
 .env
-data/
 **/docker/
+# Keep data out of git; allow DVC metadata files under data/.
+/data/**
+!/data/**/
+!/data/**/*.dvc
