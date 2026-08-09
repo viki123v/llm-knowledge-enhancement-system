@@ -1,39 +1,39 @@
 from __future__ import annotations
 
+from ctypes import cast
 import json
 import logging
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from threading import Lock
-
-import yaml
+import argparse
+from dataclasses import dataclass
 
 from ingest.raw_data_schema import ProductMetadata, RawReview
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-PROCESSED_DIR = REPO_ROOT / "data" / "processed" / "simple"
+PROCESSED_ROOT = REPO_ROOT / "data" / "processed"
+PROCESSED_DIR = PROCESSED_ROOT / "simple"
 PARAMS_FILE = REPO_ROOT / "params.yaml"
+RUNS_FILE = PROCESSED_ROOT / "runs.json"
+PIPELINE_NAME = "simple"
 
 logger = logging.getLogger(__name__)
 
 
-def load_params() -> dict:
-    with open(PARAMS_FILE) as f:
-        params = yaml.safe_load(f) or {}
 
-    factor = int(params["item_split_factor"])
-    if factor < 1:
-        raise ValueError("item_split_factor must be >= 1")
-
-    embedding_model = str(params["embedding_model"]).strip()
-    if not embedding_model:
-        raise ValueError("embedding_model must be a non-empty string")
-
-    return {
-        "item_split_factor": factor,
-        "embedding_model": embedding_model,
+def write_run_params(args: IngestParams) -> None:
+    """Record preprocessing pipeline name and params in runs.json."""
+    PROCESSED_ROOT.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "preprocessing_pipeline": PIPELINE_NAME,
+        **args.__dict__,
     }
+    with open(RUNS_FILE, "w") as f:
+        json.dump(payload, f, indent=2)
+        f.write("\n")
+    logger.info("Wrote run params to %s", RUNS_FILE)
 
 
 def embeddings_dir_for_model(embedding_model: str) -> Path:
@@ -340,6 +340,11 @@ def create_user_data(selected_item_ids: set[str]) -> None:
         history_path,
     )
 
+@dataclass
+class IngestParams:
+   item_split_factor: int
+   embedding_model: str
+
 
 def main() -> None:
     logging.basicConfig(
@@ -348,16 +353,12 @@ def main() -> None:
     )
     logger.info("Starting simple ingest")
 
-    params = load_params()
-    item_split_factor = params["item_split_factor"]
-    embedding_model = params["embedding_model"]
-    logger.info(
-        "Using item_split_factor=%s embedding_model=%s",
-        item_split_factor,
-        embedding_model,
-    )
+    parser = argparse.ArgumentParser(description="Simple Ingest Pipeline")
+    parser.add_argument("--item_split_factor", type=int, required=True, help="Retain every Nth item")
+    parser.add_argument("--embedding_model", type=str, required=True, help="HuggingFace model for embeddings")
+    args = parser.parse_args(namespace=IngestParams()) 
 
-    selected_item_ids = load_selected_item_ids(item_split_factor)
+    selected_item_ids = load_selected_item_ids(args.item_split_factor)
 
     logger.info("Step 1/3: create_user_data")
     create_user_data(selected_item_ids)
@@ -366,8 +367,9 @@ def main() -> None:
     items = create_item_description(selected_item_ids)
 
     logger.info("Step 3/3: create_item_description_embeddings")
-    create_item_description_embeddings(items, embedding_model)
+    create_item_description_embeddings(items, args.embedding_model)
 
+    write_run_params(args)
     logger.info("Simple ingest finished")
 
 

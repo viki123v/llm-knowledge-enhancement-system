@@ -14,3 +14,4 @@ stages:
       - data/processed/simple/user_item.json
       - data/processed/simple/user_purchase_history.json
       - data/processed/simple/embeddings
+      - data/processed/runs.json
