@@ -1,28 +1,69 @@
 from __future__ import annotations
-import json
 
-from llm_knowledge_enhancement.system.utils import load_user_purchase_history
-from paths import REPO_ROOT
+import json
+import logging
 from datetime import datetime
 
+from llm_knowledge_enhancement.system.utils import load_user_purchase_history
+from llm_knowledge_enhancement.paths import REPO_ROOT
 
-def run_system(system_model: str, preprocessing_strategy: str):
+logger = logging.getLogger(__name__)
+
+
+def run_system(system_model: str, **kwargs):
+    logger.info("Loading user purchase history")
     user_purchase_history = load_user_purchase_history()
-    system = None 
+    system = None
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    logger.info(
+        "Running system_model=%s for %s users (run_id=%s)",
+        system_model,
+        len(user_purchase_history),
+        run_id,
+    )
+
+    preprocessing_params_path = REPO_ROOT / "data" / "processed" / "runs.json"
+    logger.info("Loading preprocessing params from %s", preprocessing_params_path)
+    with open(preprocessing_params_path, "r") as f:
+        preprocessing_params = json.load(f)
 
     if system_model == "item_description_ranker":
         from llm_knowledge_enhancement.system.item_description_ranker import run
-        system = run 
+
+        system = run
 
     if system is None:
         raise ValueError(f"Unknown system model: {system_model}")
 
-    result = [] 
-    for user in user_purchase_history.keys():
-        result.append(
-            system(user, user_purchase_history[user])
-        ) 
+    system_params = {
+        **preprocessing_params,
+        **kwargs,
+    }
 
-    with open(REPO_ROOT / "data" / "processed" / "simple" / "system_result.json", "w") as f:
-        json.dump(result, f)
+    if (
+        system_model == "item_description_ranker"
+        and "embedding_model" not in system_params
+    ):
+        raise ValueError(
+            "item_description_ranker requires an embedding_model parameter"
+        )
+
+    results = []
+    total_users = len(user_purchase_history)
+    for idx, user in enumerate(user_purchase_history.keys(), start=1):
+        if idx == 1 or idx % 1_000 == 0 or idx == total_users:
+            logger.info("Processing user %s/%s", idx, total_users)
+        results.append(system(user, user_purchase_history[user], **system_params))
+
+    run_folder = REPO_ROOT / "data" / "predictions" / run_id
+    run_folder.mkdir(parents=True, exist_ok=True)
+    logger.info("Writing predictions to %s", run_folder)
+
+    with open(run_folder / "result.json", "w") as f:
+        json.dump(results, f)
+
+    with open(run_folder / "config.json", "w") as f:
+        json.dump({"system_name": system_model, "args": system_params}, f)
+    logger.info("Finished system run %s", run_id)
+
+    return run_id 

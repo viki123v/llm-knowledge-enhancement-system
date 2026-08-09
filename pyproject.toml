@@ -21,12 +21,13 @@ dependencies = [
     "psycopg2-binary>=2.9.11",
     "pyarrow>=25.0.0",
     "pyyaml>=6.0.3",
+    "scikit-learn>=1.9.0",
     "seaborn>=0.13.2",
     "sentence-transformers>=5.7.0",
 ]
 
 [project.scripts]
-main = "llm_knowledge_enhancement:main"
+main = "llm_knowledge_enhancement.__main__:main"
 ingest-simple = "ingest.simple.__main__:main"
 
 [build-system]
@@ -43,7 +44,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
-module-name = ["llm_knowledge_enhancement", "ingest", "path"]
+module-name = ["llm_knowledge_enhancement", "ingest" ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

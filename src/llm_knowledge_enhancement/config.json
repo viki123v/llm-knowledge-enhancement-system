@@ -1,0 +1,9 @@
+{
+  "systems": {
+    "item_description_ranker": {
+      "k": 3,
+      "recent_history_size": 6,
+      "neighbors_per_history_item": 4
+    }
+  }
+}

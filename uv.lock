@@ -1597,6 +1597,7 @@ dependencies = [
     { name = "psycopg2-binary" },
     { name = "pyarrow" },
     { name = "pyyaml" },
+    { name = "scikit-learn" },
     { name = "seaborn" },
     { name = "sentence-transformers" },
 ]
@@ -1625,6 +1626,7 @@ requires-dist = [
     { name = "psycopg2-binary", specifier = ">=2.9.11" },
     { name = "pyarrow", specifier = ">=25.0.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
+    { name = "scikit-learn", specifier = ">=1.9.0" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "sentence-transformers", specifier = ">=5.7.0" },
 ]
