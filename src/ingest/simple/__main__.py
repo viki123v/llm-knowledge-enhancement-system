@@ -342,8 +342,8 @@ def create_user_data(selected_item_ids: set[str]) -> None:
 
 @dataclass
 class IngestParams:
-   item_split_factor: int
-   embedding_model: str
+    item_split_factor: int = None
+    embedding_model: str = None
 
 
 def main() -> None:
