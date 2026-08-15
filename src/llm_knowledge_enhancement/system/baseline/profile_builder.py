@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from llm_knowledge_enhancement.system.types import PurchaseEvent
+from llm_knowledge_enhancement.system.baseline.types import PurchaseEvent
 
 
 def build_profile(
@@ -18,4 +18,5 @@ def build_profile(
         key=lambda event: (event.timestamp, event.parent_asin),
         reverse=True,
     )[:recent_history_size]
+
     return tuple(event.parent_asin for event in recent_events)

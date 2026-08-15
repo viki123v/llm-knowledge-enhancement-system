@@ -10,13 +10,13 @@ import numpy as np
 from sklearn.metrics import ndcg_score
 
 from llm_knowledge_enhancement.paths import REPO_ROOT
-from llm_knowledge_enhancement.shared.item_embeddings import (
+from llm_knowledge_enhancement.system.shared.item_embeddings import (
     ItemEmbeddingIndex,
     load_item_embedding_index,
     reconstruct_vector,
     reconstruct_vectors,
 )
-from llm_knowledge_enhancement.system.types import UserItem
+from llm_knowledge_enhancement.system.baseline.types import UserItem
 
 EMBEDDING_MODEL = "BAAI/bge-m3"
 K = 3

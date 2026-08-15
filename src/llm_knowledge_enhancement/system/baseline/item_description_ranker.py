@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import logging
 
-from llm_knowledge_enhancement.system.candidate_retriever import retrieve_candidates
-from llm_knowledge_enhancement.system.item_store import ItemStore
-from llm_knowledge_enhancement.system.profile_builder import build_profile
-from llm_knowledge_enhancement.system.ranker import rank
-from llm_knowledge_enhancement.system.types import PurchaseEvent
+from llm_knowledge_enhancement.system.baseline.candidate_retriever import retrieve_candidates
+from llm_knowledge_enhancement.system.baseline.item_store import ItemStore
+from llm_knowledge_enhancement.system.baseline.profile_builder import build_profile
+from llm_knowledge_enhancement.system.baseline.ranker import rank
+from llm_knowledge_enhancement.system.baseline.types import PurchaseEvent
 
 DEFAULT_RECENT_HISTORY_SIZE = 6
 DEFAULT_K = 3
@@ -38,9 +38,8 @@ def run(
 
     store = ItemStore(embedding_model)
     profile_item_ids = build_profile(user_purchase_history, recent_history_size)
-    purchased_item_ids = {event.parent_asin for event in user_purchase_history}
     candidate_scores = retrieve_candidates(
-        store, profile_item_ids, purchased_item_ids, neighbors_per_history_item
+        store, profile_item_ids, neighbors_per_history_item
     )
     ranked_item_ids = rank(candidate_scores, k)
 

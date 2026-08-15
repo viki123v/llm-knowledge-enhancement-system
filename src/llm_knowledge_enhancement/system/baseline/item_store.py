@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from llm_knowledge_enhancement.shared.item_embeddings import (
+from llm_knowledge_enhancement.system.shared.item_embeddings import (
     load_item_embedding_index,
     reconstruct_vectors,
 )

@@ -3,11 +3,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from llm_knowledge_enhancement.system import item_description_ranker
-from llm_knowledge_enhancement.system.candidate_retriever import retrieve_candidates
-from llm_knowledge_enhancement.system.profile_builder import build_profile
-from llm_knowledge_enhancement.system.ranker import rank
-from llm_knowledge_enhancement.system.types import PurchaseEvent
+from llm_knowledge_enhancement.system.baseline import item_description_ranker
+from llm_knowledge_enhancement.system.baseline.candidate_retriever import retrieve_candidates
+from llm_knowledge_enhancement.system.baseline.profile_builder import build_profile
+from llm_knowledge_enhancement.system.baseline.ranker import rank
+from llm_knowledge_enhancement.system.baseline.types import PurchaseEvent
 
 
 def _event(item_id: str, timestamp: int) -> PurchaseEvent:
@@ -60,12 +60,11 @@ def test_build_profile_raises_on_empty_history():
         build_profile([], recent_history_size=1)
 
 
-def test_retrieve_candidates_excludes_purchased_items():
+def test_retrieve_candidates_excludes_profile_items():
     store = FakeItemStore(CATALOG)
     candidates = retrieve_candidates(
         store,
-        profile_item_ids=("guitar",),
-        purchased_item_ids={"guitar", "strap"},
+        profile_item_ids=("guitar", "strap"),
         neighbors_per_history_item=3,
     )
     assert "guitar" not in candidates
@@ -73,12 +72,22 @@ def test_retrieve_candidates_excludes_purchased_items():
     assert "capo" in candidates
 
 
+def test_retrieve_candidates_backfills_when_top_match_is_a_profile_item():
+    store = FakeItemStore(CATALOG)
+    candidates = retrieve_candidates(
+        store,
+        profile_item_ids=("guitar",),  # guitar's own nearest neighbor is itself
+        neighbors_per_history_item=1,
+    )
+    assert len(candidates) == 1
+    assert "strap" in candidates
+
+
 def test_retrieve_candidates_merges_by_max_score_across_profile_items():
     store = FakeItemStore(CATALOG)
     candidates = retrieve_candidates(
         store,
         profile_item_ids=("guitar", "reed"),
-        purchased_item_ids=set(),
         neighbors_per_history_item=5,
     )
     # "capo" is only close to guitar; its score must be guitar's similarity,

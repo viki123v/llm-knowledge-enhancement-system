@@ -4,8 +4,8 @@ import json
 import logging
 from datetime import datetime
 
-from llm_knowledge_enhancement.system.utils import load_user_purchase_history
 from llm_knowledge_enhancement.paths import REPO_ROOT
+from llm_knowledge_enhancement.system.baseline.utils import load_user_purchase_history
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,9 @@ def run_system(system_model: str, **kwargs):
         preprocessing_params = json.load(f)
 
     if system_model == "item_description_ranker":
-        from llm_knowledge_enhancement.system.item_description_ranker import run
+        from llm_knowledge_enhancement.system.baseline.item_description_ranker import (
+            run,
+        )
 
         system = run
 
