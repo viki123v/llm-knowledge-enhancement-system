@@ -1,0 +1,17 @@
+stages:
+  ingest_simple:
+    cmd: uv run ingest-simple
+    deps:
+      - src/ingest/simple/__main__.py
+      - src/ingest/raw_data_schema.py
+      - data/amazon_musical_instruments/Musical_Instruments.jsonl
+      - data/amazon_musical_instruments/meta_Musical_Instruments.jsonl
+    params:
+      - item_split_factor
+      - embedding_model
+    outs:
+      - data/processed/simple/item_description.json
+      - data/processed/simple/user_item.json
+      - data/processed/simple/user_purchase_history.json
+      - data/processed/simple/embeddings
+      - data/processed/runs.json

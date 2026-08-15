@@ -1,0 +1,6 @@
+outs:
+- md5: 383038a32799a8d35986fc7f66ac566a.dir
+  size: 4096456128
+  nfiles: 7
+  hash: md5
+  path: amazon_musical_instruments
