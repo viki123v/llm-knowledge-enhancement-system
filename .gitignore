@@ -6,3 +6,6 @@
 !/data/**/*.dvc
 .vscode
 .idea
+*.DS_Store/
+*.pyc
+__pycache__/
