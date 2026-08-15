@@ -4,3 +4,5 @@
 /data/**
 !/data/**/
 !/data/**/*.dvc
+.vscode
+.idea
