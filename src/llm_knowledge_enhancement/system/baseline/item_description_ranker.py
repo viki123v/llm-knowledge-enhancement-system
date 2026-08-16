@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class NoEmbeddableProfileItemsError(ValueError):
     pass
 
+
 def run(
     user: str,
     user_purchase_history: list[PurchaseEvent],

@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   ingest_simple:
-    cmd: uv run ingest-simple --item_split_factor 4 --embedding_model 
+    cmd: uv run ingest-simple --item_split_factor 4 --embedding_model
       BAAI/bge-m3
     deps:
     - path: data/amazon_musical_instruments/Musical_Instruments.jsonl
