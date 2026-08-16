@@ -6,8 +6,8 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
-from llm_knowledge_enhancement.system.evaluate import run_evaluation
 from llm_knowledge_enhancement.system.baseline import run_system
+from llm_knowledge_enhancement.system.evaluate import run_evaluation
 
 CONFIG_PATH = Path(__file__).parent / "system" / "config.json"
 logger = logging.getLogger(__name__)

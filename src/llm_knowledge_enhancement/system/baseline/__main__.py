@@ -68,4 +68,4 @@ def run_system(system_model: str, **kwargs):
         json.dump({"system_name": system_model, "args": system_params}, f)
     logger.info("Finished system run %s", run_id)
 
-    return run_id 
+    return run_id

@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from ctypes import cast
+import argparse
 import json
 import logging
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from pathlib import Path
 from threading import Lock
-import argparse
-from dataclasses import dataclass
+
+from dotenv import load_dotenv
 
 from ingest.raw_data_schema import ProductMetadata, RawReview
+from ingest.simple import descriptions
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROCESSED_ROOT = REPO_ROOT / "data" / "processed"
@@ -20,7 +22,6 @@ RUNS_FILE = PROCESSED_ROOT / "runs.json"
 PIPELINE_NAME = "simple"
 
 logger = logging.getLogger(__name__)
-
 
 
 def write_run_params(args: IngestParams) -> None:
@@ -66,7 +67,9 @@ def load_selected_item_ids(item_split_factor: int) -> set[str]:
     return selected
 
 
-def create_item_description(selected_item_ids: set[str]) -> list[dict]:
+def create_item_description(
+    selected_item_ids: set[str], write_to_file=False
+) -> list[dict]:
     logger.info(
         "Building item descriptions from %s for %s selected items",
         ProductMetadata.__file__,
@@ -91,12 +94,15 @@ def create_item_description(selected_item_ids: set[str]) -> list[dict]:
                     line_no,
                     len(items),
                 )
+    if write_to_file:
+        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+        out_path = PROCESSED_DIR / "item_description.json"
+        with open(out_path, "w") as f:
+            json.dump(items, f)
+        logger.info("Wrote %s item descriptions to %s", len(items), out_path)
+    else:
+        logger.info("Skip writting to file")
 
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = PROCESSED_DIR / "item_description.json"
-    with open(out_path, "w") as f:
-        json.dump(items, f)
-    logger.info("Wrote %s item descriptions to %s", len(items), out_path)
     return items
 
 
@@ -150,7 +156,10 @@ def create_item_description_embeddings(
     from sentence_transformers import SentenceTransformer
 
     item_ids = [item["id"] for item in items]
-    texts = [_description_to_text(item.get("description")) for item in items]
+    texts = [
+        _description_to_text(item.get("summary") or item.get("description"))
+        for item in items
+    ]
     chunks = list(_chunked(texts, chunk_size))
     total_batches = len(chunks)
     chunk_groups = _split_chunks_among_threads(chunks, num_threads)
@@ -167,8 +176,7 @@ def create_item_description_embeddings(
         total_batches,
     )
     logger.info(
-        "Identified %s chunk groups for %s threads "
-        "(group sizes=%s)",
+        "Identified %s chunk groups for %s threads (group sizes=%s)",
         num_groups,
         num_threads,
         [len(group) for group in chunk_groups],
@@ -233,12 +241,12 @@ def create_item_description_embeddings(
                 start,
                 len(chunk_texts),
             )
-        logger.info("[%s] Finished all %s assigned chunks", thread_label, len(group_chunks))
+        logger.info(
+            "[%s] Finished all %s assigned chunks", thread_label, len(group_chunks)
+        )
         return group_idx, len(group_chunks)
 
-    logger.info(
-        "Dispatching %s chunk groups across %s threads", num_groups, num_groups
-    )
+    logger.info("Dispatching %s chunk groups across %s threads", num_groups, num_groups)
     with ThreadPoolExecutor(max_workers=num_groups or 1) as executor:
         futures = [
             executor.submit(embed_group, group_idx, group_chunks)
@@ -279,10 +287,7 @@ def create_user_data(selected_item_ids: set[str]) -> None:
     with open(REPO_ROOT / RawReview.__file__) as f:
         for line_no, line in enumerate(f, start=1):
             row = json.loads(line)
-            if (
-                row["verified_purchase"]
-                and row["parent_asin"] in selected_item_ids
-            ):
+            if row["verified_purchase"] and row["parent_asin"] in selected_item_ids:
                 reviews.append((row["user_id"], row["parent_asin"], row["timestamp"]))
             if line_no % 500_000 == 0:
                 logger.info(
@@ -340,6 +345,7 @@ def create_user_data(selected_item_ids: set[str]) -> None:
         history_path,
     )
 
+
 @dataclass
 class IngestParams:
     item_split_factor: int = None
@@ -352,21 +358,32 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     logger.info("Starting simple ingest")
+    load_dotenv()
 
     parser = argparse.ArgumentParser(description="Simple Ingest Pipeline")
-    parser.add_argument("--item_split_factor", type=int, required=True, help="Retain every Nth item")
-    parser.add_argument("--embedding_model", type=str, required=True, help="HuggingFace model for embeddings")
-    args = parser.parse_args(namespace=IngestParams()) 
+    parser.add_argument(
+        "--item_split_factor", type=int, required=True, help="Retain every Nth item"
+    )
+    parser.add_argument(
+        "--embedding_model",
+        type=str,
+        required=True,
+        help="HuggingFace model for embeddings",
+    )
+    args = parser.parse_args(namespace=IngestParams())
 
     selected_item_ids = load_selected_item_ids(args.item_split_factor)
 
-    logger.info("Step 1/3: create_user_data")
+    logger.info("Step 1/4: create_user_data")
     create_user_data(selected_item_ids)
 
-    logger.info("Step 2/3: create_item_description")
-    items = create_item_description(selected_item_ids)
+    logger.info("Step 2/4: create_item_description")
+    items = create_item_description(selected_item_ids, write_to_file=False)
 
-    logger.info("Step 3/3: create_item_description_embeddings")
+    logger.info("Step 3/4: cap descriptions")
+    items = descriptions.cap_descriptions(items, write_to_file=True)
+
+    logger.info("Step 4/4: create_item_description_embeddings")
     create_item_description_embeddings(items, args.embedding_model)
 
     write_run_params(args)
