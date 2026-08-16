@@ -47,7 +47,7 @@ dev = [
 ]
 
 [tool.uv.build-backend]
-module-name = ["llm_knowledge_enhancement", "ingest" ]
+module-name = ["llm_knowledge_enhancement", "ingest", "shared"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -4,8 +4,8 @@ import json
 import logging
 from datetime import datetime
 
-from llm_knowledge_enhancement.paths import REPO_ROOT
 from llm_knowledge_enhancement.system.baseline.utils import load_user_purchase_history
+from shared.paths import PREDICTIONS_DIR, RUNS_FILE
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,8 @@ def run_system(system_model: str, **kwargs):
         run_id,
     )
 
-    preprocessing_params_path = REPO_ROOT / "data" / "processed" / "runs.json"
-    logger.info("Loading preprocessing params from %s", preprocessing_params_path)
-    with open(preprocessing_params_path, "r") as f:
+    logger.info("Loading preprocessing params from %s", RUNS_FILE)
+    with open(RUNS_FILE, "r") as f:
         preprocessing_params = json.load(f)
 
     if system_model == "item_description_ranker":
@@ -57,7 +56,7 @@ def run_system(system_model: str, **kwargs):
             logger.info("Processing user %s/%s", idx, total_users)
         results.append(system(user, user_purchase_history[user], **system_params))
 
-    run_folder = REPO_ROOT / "data" / "predictions" / run_id
+    run_folder = PREDICTIONS_DIR / run_id
     run_folder.mkdir(parents=True, exist_ok=True)
     logger.info("Writing predictions to %s", run_folder)
 

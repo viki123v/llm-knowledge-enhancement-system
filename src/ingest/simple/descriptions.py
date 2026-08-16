@@ -2,16 +2,14 @@ import json
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
 from threading import Lock
 
 from ingest.simple.summarizer import create_prompt
 from shared.llms import DeepSeekProvider
+from shared.paths import PROCESSED_DIR
 
 logger = logging.getLogger(__file__)
 MAX_CHARS = 512
-REPO_ROOT = Path(__file__).resolve().parents[3]
-PROCESSED_DIR = REPO_ROOT / "data" / "processed" / "simple"
 
 
 def _description_to_text(description: list[str] | str | None) -> str:

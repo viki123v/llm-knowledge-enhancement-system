@@ -13,12 +13,8 @@ from dotenv import load_dotenv
 
 from ingest.raw_data_schema import ProductMetadata, RawReview
 from ingest.simple import descriptions
+from shared.paths import PROCESSED_DIR, PROCESSED_ROOT, REPO_ROOT, RUNS_FILE
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-PROCESSED_ROOT = REPO_ROOT / "data" / "processed"
-PROCESSED_DIR = PROCESSED_ROOT / "simple"
-PARAMS_FILE = REPO_ROOT / "params.yaml"
-RUNS_FILE = PROCESSED_ROOT / "runs.json"
 PIPELINE_NAME = "simple"
 
 logger = logging.getLogger(__name__)
