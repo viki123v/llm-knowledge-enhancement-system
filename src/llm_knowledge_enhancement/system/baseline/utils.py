@@ -5,9 +5,9 @@ from pathlib import Path
 
 import ijson
 
+from llm_knowledge_enhancement.paths import REPO_ROOT
 from llm_knowledge_enhancement.system.baseline.types import UserPurchaseHistory, PurchaseEvent
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
 USER_PURCHASE_HISTORY_PATH = (
     REPO_ROOT / "data" / "processed" / "simple" / "user_purchase_history.json"
 )

@@ -36,6 +36,9 @@ class FakeItemStore:
     def item_id_at(self, row_id: int) -> str:
         return self._ids[row_id]
 
+    def contains(self, item_id: str) -> bool:
+        return item_id in self._ids
+
     def __len__(self) -> int:
         return len(self._ids)
 
@@ -118,3 +121,18 @@ def test_run_end_to_end_uses_profile_retrieval_and_ranking(monkeypatch):
     assert len(result["predicted_item_ids"]) == 2
     assert set(result["predicted_item_ids"]) <= set(CATALOG) - {"guitar", "reed"}
     assert set(result["prediction_scores"]) == set(result["predicted_item_ids"])
+
+
+def test_run_raises_when_no_profile_item_is_embeddable(monkeypatch):
+    monkeypatch.setattr(
+        item_description_ranker, "ItemStore", lambda embedding_model: FakeItemStore(CATALOG)
+    )
+    history = [_event("no-embedding-item", 1)]
+
+    with pytest.raises(item_description_ranker.NoEmbeddableProfileItemsError):
+        item_description_ranker.run(
+            user="u1",
+            user_purchase_history=history,
+            embedding_model="unused",
+            k=2,
+        )

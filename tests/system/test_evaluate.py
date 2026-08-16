@@ -64,9 +64,9 @@ def test_evaluate_predictions_reports_binary_ndcg_alongside_existing_fields(
     )
 
     u1, u2 = report.per_user
-    assert u1.ndcg_at_3_binary == 1.0
-    assert u2.ndcg_at_3_binary == pytest.approx(1.0 / math.log2(4))
-    assert report.mean_ndcg_at_3_binary == pytest.approx(
+    assert u1.ndcg_at_k_binary == 1.0
+    assert u2.ndcg_at_k_binary == pytest.approx(1.0 / math.log2(4))
+    assert report.mean_ndcg_at_k_binary == pytest.approx(
         (1.0 + 1.0 / math.log2(4)) / 2
     )
     # existing fields still present and computed

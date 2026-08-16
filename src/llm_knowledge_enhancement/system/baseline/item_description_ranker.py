@@ -14,6 +14,9 @@ DEFAULT_NEIGHBORS_PER_HISTORY_ITEM = 4
 logger = logging.getLogger(__name__)
 
 
+class NoEmbeddableProfileItemsError(ValueError):
+    pass
+
 def run(
     user: str,
     user_purchase_history: list[PurchaseEvent],
@@ -38,9 +41,19 @@ def run(
 
     store = ItemStore(embedding_model)
     profile_item_ids = build_profile(user_purchase_history, recent_history_size)
-    candidate_scores = retrieve_candidates(
-        store, profile_item_ids, neighbors_per_history_item
+    embeddable_profile_item_ids = tuple(
+        item_id for item_id in profile_item_ids if store.contains(item_id)
     )
+
+    if not embeddable_profile_item_ids:
+        raise NoEmbeddableProfileItemsError(
+            f"None of user {user}'s profile items {profile_item_ids} have an embedding"
+        )
+
+    candidate_scores = retrieve_candidates(
+        store, embeddable_profile_item_ids, neighbors_per_history_item
+    )
+
     ranked_item_ids = rank(candidate_scores, k)
 
     return {
