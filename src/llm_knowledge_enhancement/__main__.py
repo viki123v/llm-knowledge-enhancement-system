@@ -21,7 +21,7 @@ class CliArgs:
 def parse_args() -> CliArgs:
     parser = argparse.ArgumentParser(description="LLM Knowledge Enhancement")
     parser.add_argument(
-        "--system_model", type=str, required=True, help="System model identifier"
+        "--system-model", type=str, required=True, help="System model identifier"
     )
     args = parser.parse_args()
     return CliArgs(system_model=args.system_model)
