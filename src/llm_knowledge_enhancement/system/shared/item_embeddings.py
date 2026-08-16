@@ -8,7 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 PROCESSED_DIR = REPO_ROOT / "data" / "processed" / "simple"
 logger = logging.getLogger(__name__)
 
