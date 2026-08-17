@@ -3,6 +3,9 @@
     "item_description_ranker": {
       "k": 10,
       "recent_history_size": 6
+    },
+    "popularity": {
+      "k": 10
     }
   }
 }

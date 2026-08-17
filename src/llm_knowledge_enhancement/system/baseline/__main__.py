@@ -5,7 +5,9 @@ import logging
 from datetime import datetime
 
 from llm_knowledge_enhancement.paths import REPO_ROOT
-from llm_knowledge_enhancement.system.baseline.utils import load_user_purchase_history
+from llm_knowledge_enhancement.system.baseline.utils import (
+    load_user_purchase_history,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +39,11 @@ def run_system(system_model: str, **kwargs):
         system = run
         skippable_errors = (NoEmbeddableProfileItemsError,)
 
+    if system_model == "popularity":
+        from llm_knowledge_enhancement.system.baseline.popularity_ranker import run
+
+        system = run
+
     if system is None:
         raise ValueError(f"Unknown system model: {system_model}")
 
@@ -60,7 +67,9 @@ def run_system(system_model: str, **kwargs):
         if idx == 1 or idx % 1_000 == 0 or idx == total_users:
             logger.info("Processing user %s/%s", idx, total_users)
         try:
-            results.append(system(user, user_purchase_history[user], **system_params))
+            results.append(
+                system(user, user_purchase_history[user], **system_params)
+            )
         except skippable_errors as exc:
             skipped_users += 1
             logger.warning("Skipping user %s: %s", user, exc)
