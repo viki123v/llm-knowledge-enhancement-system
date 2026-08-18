@@ -46,3 +46,5 @@ stages:
       hash: md5
       md5: 26b2c50321aa7785bbe22ac3fcb5c8fe
       size: 1778333
+  tmp:
+    cmd: uv run python3 -c "print('hello')"
