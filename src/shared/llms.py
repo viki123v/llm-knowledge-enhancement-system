@@ -18,9 +18,7 @@ _retry = retry(
 
 
 class DeepSeekProvider:
-    def __init__(
-        self, *, api_key: str | None = None, model: str = "deepseek-chat"
-    ) -> None:
+    def __init__(self, *, api_key: str | None = None, model: str = "deepseek-chat"):
         self._client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
         self._model = model
 
