@@ -4,12 +4,11 @@ import argparse
 import json
 import logging
 from dataclasses import dataclass
-from pathlib import Path
 
 from llm_knowledge_enhancement.system.baseline import run_system
 from llm_knowledge_enhancement.system.evaluate import run_evaluation
+from shared.paths import CONFIG_PATH
 
-CONFIG_PATH = Path(__file__).parent / "system" / "config.json"
 logger = logging.getLogger(__name__)
 
 
@@ -21,7 +20,7 @@ class CliArgs:
 def parse_args() -> CliArgs:
     parser = argparse.ArgumentParser(description="LLM Knowledge Enhancement")
     parser.add_argument(
-        "--system_model", type=str, required=True, help="System model identifier"
+        "--system-model", type=str, required=True, help="System model identifier"
     )
     args = parser.parse_args()
     return CliArgs(system_model=args.system_model)

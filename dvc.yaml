@@ -1,6 +1,6 @@
 stages:
   ingest_simple:
-    cmd: uv run ingest-simple
+    cmd: uv run ingest-simple --item_split_factor ${item_split_factor} --embedding_model ${embedding_model}
     deps:
       - src/ingest/simple/__main__.py
       - src/ingest/raw_data_schema.py

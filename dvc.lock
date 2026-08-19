@@ -1,7 +1,8 @@
 schema: '2.0'
 stages:
   ingest_simple:
-    cmd: uv run ingest-simple
+    cmd: uv run ingest-simple --item_split_factor 8 --embedding_model 
+      BAAI/bge-m3
     deps:
     - path: data/amazon_musical_instruments/Musical_Instruments.jsonl
       hash: md5
@@ -17,31 +18,31 @@ stages:
       size: 2169
     - path: src/ingest/simple/__main__.py
       hash: md5
-      md5: 54e9cc07f06c4dbbb142c933bb5daf6f
-      size: 12697
+      md5: 66494de92e4aed02635a8891bc4d8ccd
+      size: 13085
     params:
       params.yaml:
         embedding_model: BAAI/bge-m3
-        item_split_factor: 4
+        item_split_factor: 8
     outs:
     - path: data/processed/runs.json
       hash: md5
-      md5: 12bf22addfe73ff0635be672946b5147
-      size: 109
+      md5: 3da7ad347d6bf7683a0cb0d1c47a2eb1
+      size: 103
     - path: data/processed/simple/embeddings
       hash: md5
-      md5: 7477ea33bd35b6f095039260a407a617.dir
-      size: 219469935
+      md5: 28b4447e2f499cfe19b884a31393eda0.dir
+      size: 109737045
       nfiles: 2
     - path: data/processed/simple/item_description.json
       hash: md5
-      md5: 35848e9221db3f2ebc51cc96960bb319
-      size: 27323545
+      md5: 182c8c2db057863429a573b4638878d2
+      size: 19162080
     - path: data/processed/simple/user_item.json
       hash: md5
-      md5: a3b8f3a422235ae207d5e62150eac7fd
-      size: 2915068
+      md5: e39d290de0cbaca1fa67e680eeb044de
+      size: 875472
     - path: data/processed/simple/user_purchase_history.json
       hash: md5
-      md5: 7db6e277d16396509bfc807a176eb771
-      size: 6646670
+      md5: 26b2c50321aa7785bbe22ac3fcb5c8fe
+      size: 1778333

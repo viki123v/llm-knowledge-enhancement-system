@@ -9,7 +9,6 @@ from typing import Any
 import numpy as np
 from sklearn.metrics import ndcg_score
 
-from llm_knowledge_enhancement.paths import REPO_ROOT
 from llm_knowledge_enhancement.system.baseline.types import UserItem
 from llm_knowledge_enhancement.system.shared.item_embeddings import (
     ItemEmbeddingIndex,
@@ -17,15 +16,11 @@ from llm_knowledge_enhancement.system.shared.item_embeddings import (
     reconstruct_vector,
     reconstruct_vectors,
 )
+from shared.paths import EVALUATIONS_DIR, PREDICTIONS_DIR, TRUE_ITEMS_PATH
 
 EMBEDDING_MODEL = "BAAI/bge-m3"
 K = 3
 
-DATA_DIR = REPO_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed" / "simple"
-TRUE_ITEMS_PATH = PROCESSED_DIR / "user_item.json"
-PREDICTIONS_DIR = DATA_DIR / "predictions"
-EVALUATIONS_DIR = DATA_DIR / "evaluations"
 
 logger = logging.getLogger(__name__)
 
