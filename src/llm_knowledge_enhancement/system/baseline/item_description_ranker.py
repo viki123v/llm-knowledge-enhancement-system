@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import logging
 
-from llm_knowledge_enhancement.system.baseline.candidate_retriever import retrieve_candidates
+from llm_knowledge_enhancement.system.baseline.candidate_retriever import (
+    retrieve_candidates,
+)
 from llm_knowledge_enhancement.system.baseline.item_store import ItemStore
 from llm_knowledge_enhancement.system.baseline.profile_builder import build_profile
 from llm_knowledge_enhancement.system.baseline.ranker import rank

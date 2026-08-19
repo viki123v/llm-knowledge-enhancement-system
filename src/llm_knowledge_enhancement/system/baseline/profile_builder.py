@@ -11,7 +11,9 @@ def build_profile(
     if recent_history_size < 1:
         raise ValueError("recent_history_size must be at least 1")
     if not user_purchase_history:
-        raise ValueError("Cannot build a profile for a user with an empty purchase history")
+        raise ValueError(
+            "Cannot build a profile for a user with an empty purchase history"
+        )
 
     recent_events = sorted(
         user_purchase_history,

@@ -4,10 +4,8 @@ import json
 import logging
 from datetime import datetime
 
-from llm_knowledge_enhancement.paths import REPO_ROOT
-from llm_knowledge_enhancement.system.baseline.utils import (
-    load_user_purchase_history,
-)
+from llm_knowledge_enhancement.system.baseline.utils import load_user_purchase_history
+from shared.paths import REPO_ROOT, RUNS_FILE
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +22,8 @@ def run_system(system_model: str, **kwargs):
         run_id,
     )
 
-    preprocessing_params_path = REPO_ROOT / "data" / "processed" / "runs.json"
-    logger.info("Loading preprocessing params from %s", preprocessing_params_path)
-    with open(preprocessing_params_path, "r") as f:
+    logger.info("Loading preprocessing params from %s", RUNS_FILE)
+    with open(RUNS_FILE, "r") as f:
         preprocessing_params = json.load(f)
 
     skippable_errors: tuple[type[Exception], ...] = ()
@@ -67,9 +64,7 @@ def run_system(system_model: str, **kwargs):
         if idx == 1 or idx % 1_000 == 0 or idx == total_users:
             logger.info("Processing user %s/%s", idx, total_users)
         try:
-            results.append(
-                system(user, user_purchase_history[user], **system_params)
-            )
+            results.append(system(user, user_purchase_history[user], **system_params))
         except skippable_errors as exc:
             skipped_users += 1
             logger.warning("Skipping user %s: %s", user, exc)
@@ -80,7 +75,7 @@ def run_system(system_model: str, **kwargs):
         "Skipped %s / %s (%.0f%%) users with no recommendable candidates",
         skipped_users,
         total_users,
-        ratio
+        ratio,
     )
 
     run_folder = REPO_ROOT / "data" / "predictions" / run_id
@@ -94,4 +89,4 @@ def run_system(system_model: str, **kwargs):
         json.dump({"system_name": system_model, "args": system_params}, f)
     logger.info("Finished system run %s", run_id)
 
-    return run_id 
+    return run_id

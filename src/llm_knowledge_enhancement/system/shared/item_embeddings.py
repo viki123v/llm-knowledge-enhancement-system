@@ -8,9 +8,8 @@ from pathlib import Path
 
 import numpy as np
 
-from llm_knowledge_enhancement.paths import REPO_ROOT
+from shared.paths import PROCESSED_DIR
 
-PROCESSED_DIR = REPO_ROOT / "data" / "processed" / "simple"
 logger = logging.getLogger(__name__)
 
 

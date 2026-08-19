@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Iterable
-
 from llm_knowledge_enhancement.system.baseline.item_store import ItemStore
 
 

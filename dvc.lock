@@ -23,7 +23,7 @@ stages:
     params:
       params.yaml:
         embedding_model: BAAI/bge-m3
-        item_split_factor: 4
+        item_split_factor: 8
     outs:
     - path: data/processed/runs.json
       hash: md5
@@ -36,8 +36,8 @@ stages:
       nfiles: 2
     - path: data/processed/simple/item_description.json
       hash: md5
-      md5: 35848e9221db3f2ebc51cc96960bb319
-      size: 27323545
+      md5: 182c8c2db057863429a573b4638878d2
+      size: 19162080
     - path: data/processed/simple/user_item.json
       hash: md5
       md5: 3cae9e6f5eacec35eeb534ab13d2c035

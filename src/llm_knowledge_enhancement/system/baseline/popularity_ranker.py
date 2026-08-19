@@ -8,6 +8,7 @@ from llm_knowledge_enhancement.system.baseline.utils import global_per_item_freq
 DEFAULT_K = 3
 logger = logging.getLogger(__name__)
 
+
 def run(
     user: str,
     user_purchase_history: list[PurchaseEvent],

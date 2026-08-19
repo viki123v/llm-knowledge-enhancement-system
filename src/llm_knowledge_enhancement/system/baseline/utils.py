@@ -7,15 +7,11 @@ from pathlib import Path
 
 import ijson
 
-from llm_knowledge_enhancement.paths import REPO_ROOT
 from llm_knowledge_enhancement.system.baseline.types import (
     PurchaseEvent,
     UserPurchaseHistory,
 )
-
-USER_PURCHASE_HISTORY_PATH = (
-    REPO_ROOT / "data" / "processed" / "simple" / "user_purchase_history.json"
-)
+from shared.paths import USER_PURCHASE_HISTORY_PATH
 
 
 def iter_user_purchase_history(
@@ -39,4 +35,6 @@ def global_per_item_freq() -> tuple[tuple[str, int], ...]:
     counts: Counter[str] = Counter()
     for history in load_user_purchase_history().values():
         counts.update(event.parent_asin for event in history)
-    return tuple(sorted(counts.items(), key=lambda item_count: (-item_count[1], item_count[0])))
+    return tuple(
+        sorted(counts.items(), key=lambda item_count: (-item_count[1], item_count[0]))
+    )
