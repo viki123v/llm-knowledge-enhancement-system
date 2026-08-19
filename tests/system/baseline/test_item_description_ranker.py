@@ -4,7 +4,9 @@ import numpy as np
 import pytest
 
 from llm_knowledge_enhancement.system.baseline import item_description_ranker
-from llm_knowledge_enhancement.system.baseline.candidate_retriever import retrieve_candidates
+from llm_knowledge_enhancement.system.baseline.candidate_retriever import (
+    retrieve_candidates,
+)
 from llm_knowledge_enhancement.system.baseline.profile_builder import build_profile
 from llm_knowledge_enhancement.system.baseline.ranker import rank
 from llm_knowledge_enhancement.system.baseline.types import PurchaseEvent
@@ -103,7 +105,9 @@ def test_rank_truncates_and_breaks_ties_deterministically_by_item_id():
 
 def test_run_end_to_end_uses_profile_retrieval_and_ranking(monkeypatch):
     monkeypatch.setattr(
-        item_description_ranker, "ItemStore", lambda embedding_model: FakeItemStore(CATALOG)
+        item_description_ranker,
+        "ItemStore",
+        lambda embedding_model: FakeItemStore(CATALOG),
     )
     history = [_event("guitar", 1), _event("reed", 2)]
 
