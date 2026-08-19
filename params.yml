@@ -1,5 +1,4 @@
 embedding_model: BAAI/bge-m3
 item_split_factor: 4
 k: 10
-recent_history_size: 6
-system_model: item_description_ranker
+system_model: popularity
