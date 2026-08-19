@@ -1,0 +1,4 @@
+embedding_model: BAAI/bge-m3
+item_split_factor: 4
+k: 10
+system_model: popularity
