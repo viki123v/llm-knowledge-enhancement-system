@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Iterator
+from functools import lru_cache
 from pathlib import Path
 
 import ijson
@@ -25,3 +27,14 @@ def load_user_purchase_history(
     path: Path = USER_PURCHASE_HISTORY_PATH,
 ) -> UserPurchaseHistory:
     return dict(iter_user_purchase_history(path))
+
+
+@lru_cache(maxsize=1)
+def global_per_item_freq() -> tuple[tuple[str, int], ...]:
+    """All item ids ranked by purchase count across all users, most popular first."""
+    counts: Counter[str] = Counter()
+    for history in load_user_purchase_history().values():
+        counts.update(event.parent_asin for event in history)
+    return tuple(
+        sorted(counts.items(), key=lambda item_count: (-item_count[1], item_count[0]))
+    )

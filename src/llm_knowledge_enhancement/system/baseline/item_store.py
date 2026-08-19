@@ -21,6 +21,9 @@ class ItemStore:
     def get_vectors(self, item_ids: tuple[str, ...]) -> np.ndarray:
         return reconstruct_vectors(self._index, item_ids)
 
+    def contains(self, item_id: str) -> bool:
+        return item_id in self._index.item_id_to_row
+
     def search(
         self, query_vectors: np.ndarray, top_n: int
     ) -> tuple[np.ndarray, np.ndarray]:

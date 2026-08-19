@@ -19,7 +19,7 @@ from llm_knowledge_enhancement.system.shared.item_embeddings import (
 from shared.paths import EVALUATIONS_DIR, PREDICTIONS_DIR, TRUE_ITEMS_PATH
 
 EMBEDDING_MODEL = "BAAI/bge-m3"
-K = 3
+K = 10
 
 
 logger = logging.getLogger(__name__)
@@ -30,16 +30,18 @@ class UserEvaluation:
     user_id: str
     true_item_id: str
     predicted_item_ids: tuple[str, ...]
-    ndcg_at_3: float
+    ndcg_at_k: float
     top_one_match: bool
+    ndcg_at_k_binary: float
 
 
 @dataclass(frozen=True, slots=True)
 class EvaluationReport:
     k: int
     n_users: int
-    mean_ndcg_at_3: float
+    mean_ndcg_at_k: float
     top_one_accuracy: float
+    mean_ndcg_at_k_binary: float
     per_user: tuple[UserEvaluation, ...]
 
 
@@ -97,6 +99,20 @@ def _ndcg_for_ranked_relevances(relevances: np.ndarray, k: int) -> float:
     )
 
 
+def _ndcg_binary(
+    predicted_item_ids: tuple[str, ...], true_item_id: str, k: int
+) -> float:
+    """NDCG for a single relevant item: ideal DCG is the fixed constant 1.0
+    (true item at rank 1), so this is just the discounted gain at the true
+    item's rank if it's in the top-k, else 0. Unlike ndcg_at_k, this never
+    gives credit for a wrong-but-similar prediction.
+    """
+    for rank, item_id in enumerate(predicted_item_ids[:k], start=1):
+        if item_id == true_item_id:
+            return 1.0 / np.log2(rank + 1)
+    return 0.0
+
+
 def evaluate_predictions(
     predictions: list[dict[str, Any]],
     true_items: dict[str, str],
@@ -130,14 +146,23 @@ def evaluate_predictions(
 
         predicted_at_k = predicted_item_ids[:k]
         true_item_id = true_items[user_id]
-        relevances = _semantic_relevances(item_index, true_item_id, predicted_at_k)
+        # ndcg_at_k_binary and top_one_match only compare item ids, so they
+        # stay well-defined even when the true item has no embedding (it was
+        # excluded from the embeddable catalog, e.g. an empty description).
+        # Only the embedding-based semantic score needs a fallback here.
+        if true_item_id in item_index.item_id_to_row:
+            relevances = _semantic_relevances(item_index, true_item_id, predicted_at_k)
+            ndcg_at_k_value = _ndcg_for_ranked_relevances(relevances, k)
+        else:
+            ndcg_at_k_value = 0.0
         per_user.append(
             UserEvaluation(
                 user_id=user_id,
                 true_item_id=true_item_id,
                 predicted_item_ids=predicted_at_k,
-                ndcg_at_3=_ndcg_for_ranked_relevances(relevances, k),
+                ndcg_at_k=ndcg_at_k_value,
                 top_one_match=predicted_at_k[0] == true_item_id,
+                ndcg_at_k_binary=_ndcg_binary(predicted_at_k, true_item_id, k),
             )
         )
 
@@ -147,8 +172,11 @@ def evaluate_predictions(
     return EvaluationReport(
         k=k,
         n_users=len(per_user),
-        mean_ndcg_at_3=float(np.mean([row.ndcg_at_3 for row in per_user])),
+        mean_ndcg_at_k=float(np.mean([row.ndcg_at_k for row in per_user])),
         top_one_accuracy=float(np.mean([row.top_one_match for row in per_user])),
+        mean_ndcg_at_k_binary=float(
+            np.mean([row.ndcg_at_k_binary for row in per_user])
+        ),
         per_user=tuple(per_user),
     )
 
@@ -172,10 +200,13 @@ def run_evaluation(run_id: str) -> EvaluationReport:
     )
     write_report(report, evaluation_path)
     logger.info(
-        "Wrote evaluation to %s: mean_ndcg_at_%s=%.4f, top_one_accuracy=%.4f",
+        "Wrote evaluation to %s: mean_ndcg_at_%s=%.4f, "
+        "mean_ndcg_at_%s_binary=%.4f, top_one_accuracy=%.4f",
         evaluation_path,
         K,
-        report.mean_ndcg_at_3,
+        report.mean_ndcg_at_k,
+        K,
+        report.mean_ndcg_at_k_binary,
         report.top_one_accuracy,
     )
     return report

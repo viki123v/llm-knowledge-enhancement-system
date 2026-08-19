@@ -151,10 +151,22 @@ def create_item_description_embeddings(
     import numpy as np
     from sentence_transformers import SentenceTransformer
 
-    item_ids = [item["id"] for item in items]
+    describable_items = [item for item in items if item.get("description")]
+
+    n_total_items = len(items)
+    n_describable = len(describable_items)
+    ratio = n_describable / n_total_items
+
+    logger.info(
+        "Dropping %s / %s (%.0f%%) items with no description from the embeddable catalog",
+        n_total_items - n_describable,
+        n_total_items,
+        ratio,
+    )
+
+    item_ids = [item["id"] for item in describable_items]
     texts = [
-        _description_to_text(item.get("summary") or item.get("description"))
-        for item in items
+        _description_to_text(item.get("description")) for item in describable_items
     ]
     chunks = list(_chunked(texts, chunk_size))
     total_batches = len(chunks)

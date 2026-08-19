@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 
 from llm_knowledge_enhancement.system.baseline.utils import load_user_purchase_history
-from shared.paths import PREDICTIONS_DIR, RUNS_FILE
+from shared.paths import REPO_ROOT, RUNS_FILE
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +26,18 @@ def run_system(system_model: str, **kwargs):
     with open(RUNS_FILE, "r") as f:
         preprocessing_params = json.load(f)
 
+    skippable_errors: tuple[type[Exception], ...] = ()
     if system_model == "item_description_ranker":
         from llm_knowledge_enhancement.system.baseline.item_description_ranker import (
+            NoEmbeddableProfileItemsError,
             run,
         )
+
+        system = run
+        skippable_errors = (NoEmbeddableProfileItemsError,)
+
+    if system_model == "popularity":
+        from llm_knowledge_enhancement.system.baseline.popularity_ranker import run
 
         system = run
 
@@ -50,13 +58,27 @@ def run_system(system_model: str, **kwargs):
         )
 
     results = []
+    skipped_users = 0
     total_users = len(user_purchase_history)
     for idx, user in enumerate(user_purchase_history.keys(), start=1):
         if idx == 1 or idx % 1_000 == 0 or idx == total_users:
             logger.info("Processing user %s/%s", idx, total_users)
-        results.append(system(user, user_purchase_history[user], **system_params))
+        try:
+            results.append(system(user, user_purchase_history[user], **system_params))
+        except skippable_errors as exc:
+            skipped_users += 1
+            logger.warning("Skipping user %s: %s", user, exc)
 
-    run_folder = PREDICTIONS_DIR / run_id
+    ratio = skipped_users / total_users
+
+    logger.info(
+        "Skipped %s / %s (%.0f%%) users with no recommendable candidates",
+        skipped_users,
+        total_users,
+        ratio,
+    )
+
+    run_folder = REPO_ROOT / "data" / "predictions" / run_id
     run_folder.mkdir(parents=True, exist_ok=True)
     logger.info("Writing predictions to %s", run_folder)
 
