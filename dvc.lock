@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   ingest_simple:
-    cmd: uv run ingest-simple --item_split_factor 4 --embedding_model
+    cmd: uv run ingest-simple --item_split_factor 4 --embedding_model 
       BAAI/bge-m3
     deps:
     - path: data/amazon_musical_instruments/Musical_Instruments.jsonl
@@ -46,3 +46,28 @@ stages:
       hash: md5
       md5: 7d96a46eaaf5b4646866f7c7c35c8039
       size: 6646670
+  build_knowledge_graph:
+    cmd: uv run build-kg
+    deps:
+    - path: data/amazon_musical_instruments/meta_Musical_Instruments.jsonl
+      hash: md5
+      md5: 44492f6328e4274b4392541df8f06732
+      size: 630450568
+    - path: data/processed/simple/user_item.json
+      hash: md5
+      md5: d963a0924f16484738ad7132f08f8311
+      size: 875472
+    - path: data/processed/simple/user_purchase_history.json
+      hash: md5
+      md5: add8c3720a461d2e6fd6e5d05b421b39
+      size: 1778333
+    - path: src/kg
+      hash: md5
+      md5: 113960d3aaf409290053ea27bd4279a7.dir
+      size: 40928
+      nfiles: 10
+    outs:
+    - path: data/processed/kg/build_manifest.json
+      hash: md5
+      md5: 3cf70f41b8813bc243b74de25d99940b
+      size: 399
