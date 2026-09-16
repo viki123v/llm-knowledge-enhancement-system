@@ -15,3 +15,14 @@ stages:
       - data/processed/simple/user_purchase_history.json
       - data/processed/simple/embeddings
       - data/processed/runs.json
+
+  build_knowledge_graph:
+    cmd: uv run build-kg
+    deps:
+      - src/kg
+      - data/amazon_musical_instruments/meta_Musical_Instruments.jsonl
+      - data/processed/simple/user_item.json
+      - data/processed/simple/user_purchase_history.json
+    outs:
+      - data/processed/kg/build_manifest.json:
+          cache: false

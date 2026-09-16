@@ -14,4 +14,6 @@ TRUE_ITEMS_PATH = PROCESSED_DIR / "user_item.json"
 PREDICTIONS_DIR = DATA_DIR / "predictions"
 EVALUATIONS_DIR = DATA_DIR / "evaluations"
 
+KG_MANIFEST_PATH = PROCESSED_ROOT / "kg" / "build_manifest.json"
+
 CONFIG_PATH = REPO_ROOT / "src" / "llm_knowledge_enhancement" / "system" / "config.json"
