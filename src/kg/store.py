@@ -7,10 +7,6 @@ from typing import Any
 from neo4j import GraphDatabase
 
 
-# ponytail: nodes are matched by whichever id property they actually have
-# (item_id / name / user_id). One generic query per node type avoids branching
-# on node label everywhere a node id crosses a boundary; add a real index /
-# per-label lookup if this ever shows up in a profiler.
 def _id_match(var: str, param: str) -> str:
     return f"({var}.item_id = ${param} OR {var}.name = ${param} OR {var}.user_id = ${param})"
 
@@ -166,8 +162,6 @@ class KnowledgeGraphStore:
             return [record["item_id"] for record in records]
 
     def shortest_path(self, source_id: str, target_id: str) -> list[str] | None:
-        # ponytail: 6-hop cap keeps this cheap on a small graph; raise it (or
-        # add a proper index) if the graph grows enough for this to matter.
         with self._driver.session() as session:
             record = session.run(
                 f"""
